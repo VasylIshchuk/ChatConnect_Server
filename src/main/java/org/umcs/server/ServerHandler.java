@@ -7,19 +7,25 @@ import java.io.PrintWriter;
 
 import java.net.Socket;
 
-public class ClientHandler implements  Runnable{
-    Server server;
-    BufferedReader reader;
-    PrintWriter writer;
+public class ServerHandler implements  Runnable{
+    private final Server server;
+    private final BufferedReader reader;
+    private final PrintWriter writer;
+    private final Socket clientSocket;
     String username;
 
-    public ClientHandler(Socket clientSocket, Server server) throws IOException {
+    public ServerHandler(Socket clientSocket, Server server)  {
+        this.clientSocket = clientSocket;
         this.server = server;
-        reader = new BufferedReader(
-                new InputStreamReader(
-                        clientSocket.getInputStream()
-                ));
-        writer = new PrintWriter(clientSocket.getOutputStream(),true);
+        try {
+            reader = new BufferedReader(
+                    new InputStreamReader(
+                            clientSocket.getInputStream()
+                    ));
+            writer = new PrintWriter(clientSocket.getOutputStream(),true);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -28,32 +34,38 @@ public class ClientHandler implements  Runnable{
             clientRegistration();
             String rawMessage;
             while((rawMessage = reader.readLine())!= null){
-                server.broadcast(rawMessage,this);
+                if (rawMessage.equals("EXIT")) {
+                    server.disconnect("left a chat", this);
+                    break;
+                }else server.broadcast(rawMessage,this);
             }
+            clientSocket.close();
+            System.out.println(ColorANSI.MAGENTA +"Client disconnected" + ColorANSI.RESET);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void send(String message, ClientHandler clientHandler){
+    public void send(String message, ServerHandler serverHandler){
         writer.println(ColorANSI.BLUE +
-                clientHandler.username + " " +
+                serverHandler.username + " " +
                 ColorANSI.RESET +
                 message);
     }
 
 
-    public void clientRegistration() throws IOException {
+    private void clientRegistration() throws IOException {
         writer.println();
         writer.println(ColorANSI.BLUE + "Welcome to the server ^_^" );
         getUsername();
         writer.println(ColorANSI.BLUE + "Thanks ^-^" );
         writer.println("Now you can chat with other users ^.^");
+        writer.println("Additionally, if you want to leave the server, write \"EXIT\"");
         writer.println("Let's go!" + ColorANSI.RESET);
         writer.println();
     }
 
-    public void getUsername() throws IOException {
+    private void getUsername() throws IOException {
         writer.println("Write your username so that other users know that you have connected to the server o_o"
                 + ColorANSI.RESET);
         username = reader.readLine();
@@ -61,7 +73,7 @@ public class ClientHandler implements  Runnable{
         boolean uniqueUsername = false;
         while(!uniqueUsername) {
             boolean isUnique = true;
-            for (String key : server.listClients.keySet() ) {
+            for (String key : server.clients.keySet() ) {
                 if (username.equals(key)) {
                     writer.println(ColorANSI.MAGENTA + "Sorry, this username is already in use. " +
                             "Please try again o.o" + ColorANSI.RESET );
@@ -72,7 +84,7 @@ public class ClientHandler implements  Runnable{
             }
             if(isUnique) uniqueUsername = true;
         }
-        server.listClients.put(username, this);
+        server.clients.put(username, this);
 
         server.broadcast(ColorANSI.RESET +
                         ColorANSI.GREEN +
@@ -80,4 +92,5 @@ public class ClientHandler implements  Runnable{
                         ColorANSI.RESET,
                 this);
     }
+
 }
