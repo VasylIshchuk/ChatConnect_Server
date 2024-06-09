@@ -28,15 +28,26 @@ public class Server {
         }
     }
 
-    public void broadcast(String message, ServerHandler serverHandler){
-        for(ServerHandler client : clients.values()){
-            if(!client.equals(serverHandler)) client.send(message, serverHandler);
+    public void broadcast(String message, ServerHandler sender){
+        for(ServerHandler receiver : clients.values()){
+            if(!receiver.equals(sender)) receiver.send(message, sender);
         }
     }
     public void disconnect(String message, ServerHandler serverHandler){
         clients.remove(serverHandler.username);
-        for(ServerHandler client : clients.values()){
-            if(!client.equals(serverHandler)) client.send(message, serverHandler);
+        for(ServerHandler receiver : clients.values()){
+            if(!receiver.equals(serverHandler)) receiver.send(message, serverHandler);
         }
+    }
+    public void privateMessage(String message, ServerHandler sender, ServerHandler receiver){
+        boolean isConnected = false;
+        for(ServerHandler client : clients.values()){
+            if(client.equals(receiver)){
+                receiver.send(message,sender);
+                isConnected = true;
+                break;
+            }
+        }
+        if(!isConnected) sender.error();
     }
 }

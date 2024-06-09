@@ -40,7 +40,11 @@ public class ServerHandler implements  Runnable{
                 }else if(message.equals("/online")){
                     for(String username :server.clients.keySet())
                         writer.println(username);
-                } else server.broadcast(message,this);
+                }else if(message.startsWith("/w ")){
+                    String[] splitMessage = message.split(" ",3);
+                    server.privateMessage(splitMessage[2],this,server.clients.get(splitMessage[1]));
+                }
+                else server.broadcast(message,this);
             }
             clientSocket.close();
             System.out.println(ColorANSI.MAGENTA + "Client disconnected" + ColorANSI.RESET);
@@ -48,10 +52,15 @@ public class ServerHandler implements  Runnable{
             throw new RuntimeException(e);
         }
     }
+    public void error(){
+        writer.println(ColorANSI.MAGENTA +
+                "This user is not connected -_-" +
+                ColorANSI.RESET);
+    }
 
-    public void send(String message, ServerHandler serverHandler){
+    public void send(String message, ServerHandler sender){
         writer.println(ColorANSI.BLUE +
-                serverHandler.username + " " +
+                sender.username + " " +
                 ColorANSI.RESET +
                 message);
     }
