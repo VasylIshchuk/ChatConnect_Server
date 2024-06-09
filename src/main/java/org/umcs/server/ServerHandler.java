@@ -32,15 +32,18 @@ public class ServerHandler implements  Runnable{
     public void run() {
         try {
             clientRegistration();
-            String rawMessage;
-            while((rawMessage = reader.readLine())!= null){
-                if (rawMessage.equals("EXIT")) {
+            String message;
+            while((message = reader.readLine())!= null){
+                if (message.equals("EXIT")) {
                     server.disconnect("left a chat", this);
                     break;
-                }else server.broadcast(rawMessage,this);
+                }else if(message.equals("/online")){
+                    for(String username :server.clients.keySet())
+                        writer.println(username);
+                } else server.broadcast(message,this);
             }
             clientSocket.close();
-            System.out.println(ColorANSI.MAGENTA +"Client disconnected" + ColorANSI.RESET);
+            System.out.println(ColorANSI.MAGENTA + "Client disconnected" + ColorANSI.RESET);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
