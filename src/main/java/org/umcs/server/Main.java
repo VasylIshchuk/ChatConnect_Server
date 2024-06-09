@@ -1,6 +1,4 @@
-package org.umcs;
-
-import org.umcs.server.Server;
+package org.umcs.server;
 
 
 public class Main {

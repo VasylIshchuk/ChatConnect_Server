@@ -1,6 +1,4 @@
-package org.umcs;
-
-import org.umcs.client.Client;
+package org.umcs.client;
 
 import java.io.IOException;
 

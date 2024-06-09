@@ -1,6 +1,9 @@
 package org.umcs.client;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.Socket;
 
 
@@ -18,10 +21,10 @@ public class ClientHandler implements  Runnable{
 
     @Override
     public void run() {
-        String rawMessage;
+        String message;
         try {
-            while((rawMessage = reader.readLine())!= null) {
-                System.out.println(rawMessage);
+            while((message = reader.readLine())!= null) {
+                System.out.println(message);
             }
 
         } catch (IOException e) {

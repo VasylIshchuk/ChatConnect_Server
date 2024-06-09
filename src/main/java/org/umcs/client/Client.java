@@ -14,10 +14,10 @@ public class Client {
             thread.start();
 //            Represents the client that sends the message
             Scanner reader = new Scanner(System.in);
-            String rawMessage;
-            while((rawMessage = reader.nextLine())!= null){
-                clientHandler.send(rawMessage);
-                if (rawMessage.equals("EXIT")) break;
+            String message;
+            while((message = reader.nextLine())!= null){
+                clientHandler.send(message);
+                if (message.equals("EXIT")) break;
             }
         }
     }
