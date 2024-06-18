@@ -17,7 +17,7 @@ public class Client {
             String message;
             while((message = reader.nextLine())!= null){
                 clientHandler.send(message);
-                if (message.equals("EXIT")) break;
+                if (message.equals("/exit")) System.exit(0);
             }
         }
     }
