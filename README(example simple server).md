@@ -14,11 +14,11 @@ public class Server {
     public void start(int port)  {
         try {
             serverSocket = new ServerSocket(port); //ServerSocket creates a socket to be attached to a port.
-            System.out.println(ColorANSI.BLUE + "Server started" + "\n" + ColorANSI.RESET );
+            System.out.println( "Server started" + "\n"  );
             while (true) {
                 Socket clientSocket = serverSocket.accept();
             ".accept()" is used to wait. Stops program until it detects a connection from the client.
-                System.out.println(ColorANSI.CYAN + "Client connected" + ColorANSI.RESET);
+                System.out.println( "Client connected" );
                 ServerHandler serverHandler = new ServerHandler(clientSocket, this);
                 Thread thread = new Thread(serverHandler);
                 thread.start();
@@ -52,7 +52,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 public class ServerHandler implements  Runnable{
-   
+    
     private final Server server;
     private final BufferedReader reader;
     private final PrintWriter writer;
@@ -85,7 +85,7 @@ public class ServerHandler implements  Runnable{
                 }else server.broadcast(rawMessage,this);
             }
             clientSocket.close();
-            System.out.println(ColorANSI.MAGENTA +"Client disconnected" + ColorANSI.RESET);
+            System.out.println( "Client disconnected" );
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -94,4 +94,5 @@ public class ServerHandler implements  Runnable{
     public void send(String message, ServerHandler serverHandler){
         writer.println(serverHandler.username + " "+ message);
     }
+
 }
