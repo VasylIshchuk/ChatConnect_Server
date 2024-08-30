@@ -7,14 +7,14 @@ import java.io.PrintWriter;
 
 import java.net.Socket;
 
-public class ServerHandler implements  Runnable{
+public class ServerHandler implements Runnable {
     private final Server server;
     private final BufferedReader reader;
     private final PrintWriter writer;
     private final Socket clientSocket;
     String username;
 
-    public ServerHandler(Socket clientSocket, Server server)  {
+    public ServerHandler(Socket clientSocket, Server server) {
         this.clientSocket = clientSocket;
         this.server = server;
         try {
@@ -22,7 +22,7 @@ public class ServerHandler implements  Runnable{
                     new InputStreamReader(
                             clientSocket.getInputStream()
                     ));
-            writer = new PrintWriter(clientSocket.getOutputStream(),true);
+            writer = new PrintWriter(clientSocket.getOutputStream(), true);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -40,10 +40,10 @@ public class ServerHandler implements  Runnable{
         System.out.println(ColorANSI.MAGENTA + "Client disconnected" + ColorANSI.RESET);
     }
 
-    private void parseClientMessage(){
+    private void parseClientMessage() {
         String message;
         try {
-            while((message = reader.readLine())!= null){
+            while ((message = reader.readLine()) != null) {
                 if (message.equals("/exit")) {
                     server.disconnect(ColorANSI.GREEN +
                             "[SERVER]: " +
@@ -51,44 +51,44 @@ public class ServerHandler implements  Runnable{
                             " left a chat" +
                             ColorANSI.RESET, this);
                     break;
-                }else if(message.equals("/online")){
-                    for(String username :server.clients.keySet())
+                } else if (message.equals("/online")) {
+                    for (String username : server.clients.keySet())
                         writer.println("\t" + ColorANSI.BLUE + username + ColorANSI.RESET);
-                }else if(message.startsWith("/pm ")){
-                    String[] splitMessage = message.split(" ",3);
-                    server.privateMessage(splitMessage[2],this,server.clients.get(splitMessage[1]));
-                } else if(message.startsWith("/command")) {
+                } else if (message.startsWith("/pm ")) {
+                    String[] splitMessage = message.split(" ", 3);
+                    server.privateMessage(splitMessage[2], this, server.clients.get(splitMessage[1]));
+                } else if (message.startsWith("/command")) {
                     StringBuffer text = new StringBuffer();
                     text.append("\t• \"/exit\" - to exit the server;\n")
                             .append("\t• \"/pm username_receiver message\" - to send a private message;\n")
                             .append("\t• \"/online\" - to show a list of all chat members\n")
                             .append("\t• \"/command\" - to show all commands");
                     writer.println(ColorANSI.BLUE + text + ColorANSI.RESET);
-                } else server.broadcast(message,this);
+                } else server.broadcast(message, this);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void error(){
+    public void error() {
         writer.println(ColorANSI.MAGENTA +
                 "This user is not connected -_-" +
                 ColorANSI.RESET);
     }
 
-    public void sendMessage(String message, ServerHandler sender){
+    public void sendMessage(String message, ServerHandler sender) {
         writer.println(ColorANSI.BLUE +
                 sender.username + ": " +
                 ColorANSI.RESET +
                 message);
     }
 
-    public void sendServerMessage(String message){
+    public void sendServerMessage(String message) {
         writer.println(message);
     }
 
-    public void sendPrivateMessage(String message, ServerHandler sender){
+    public void sendPrivateMessage(String message, ServerHandler sender) {
         writer.println(ColorANSI.BLUE +
                 sender.username +
                 " (PM): " +
@@ -96,9 +96,9 @@ public class ServerHandler implements  Runnable{
                 message);
     }
 
-    private void clientRegistration()  {
+    private void clientRegistration() {
         writer.println();
-        writer.println(ColorANSI.BLUE + "Welcome to the server ^_^" );
+        writer.println(ColorANSI.BLUE + "Welcome to the server ^_^");
         getUsername();
         StringBuffer text = new StringBuffer();
         text.append(ColorANSI.BLUE + "Thanks ^-^\n")
@@ -108,12 +108,12 @@ public class ServerHandler implements  Runnable{
                 .append("\t• \"/pm username_receiver message\" - to send a private message;\n")
                 .append("\t• \"/online\" - to show a list of all chat members\n")
                 .append("\t• \"/command\" - to show all commands\n")
-                .append("Let's go!\n"+ ColorANSI.RESET);
+                .append("Let's go!\n" + ColorANSI.RESET);
         writer.println(text);
     }
 
     private void getUsername() {
-        writer.println("Write your username so that other users know that you have connected to the server o_o"
+        writer.println("Enter your username so other users know who has connected to the server o_o"
                 + ColorANSI.RESET);
 
         try {
@@ -132,15 +132,15 @@ public class ServerHandler implements  Runnable{
                 this);
     }
 
-    private void validateUniqueUsername(){
+    private void validateUniqueUsername() {
         boolean uniqueUsername = false;
-        while(!uniqueUsername) {
+        while (!uniqueUsername) {
             boolean isUnique = true;
-            for (String key : server.clients.keySet() ) {
+            for (String key : server.clients.keySet()) {
                 if (username.equals(key)) {
                     try {
                         writer.println(ColorANSI.MAGENTA + "Sorry, this username is already in use. " +
-                                "Please try again o.o" + ColorANSI.RESET );
+                                "Please try again o.o" + ColorANSI.RESET);
                         username = reader.readLine();
                         isUnique = false;
                         break;
@@ -149,7 +149,7 @@ public class ServerHandler implements  Runnable{
                     }
                 }
             }
-            if(isUnique) uniqueUsername = true;
+            if (isUnique) uniqueUsername = true;
         }
     }
 }

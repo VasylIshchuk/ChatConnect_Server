@@ -11,13 +11,13 @@ public class Server {
     ServerSocket serverSocket;
     Map<String, ServerHandler> clients = new HashMap<>();
 
-    public void start(int port)  {
+    public void start(int port) {
         try {
-            serverSocket = new ServerSocket(port); //ServerSocket creates a socket to be attached to a port.
-            System.out.println(ColorANSI.BLUE + "Server started" + "\n" + ColorANSI.RESET );
+            serverSocket = new ServerSocket(port); //   ServerSocket creates a socket to be attached to a port.
+            System.out.println(ColorANSI.BLUE + "Server started" + "\n" + ColorANSI.RESET);
             while (true) {
                 Socket clientSocket = serverSocket.accept();
-//            ".accept()" is used to wait. Stops program until it detects a connection from the client.
+                //  ".accept()" is used to wait. Stops program until it detects a connection from the client.
                 System.out.println(ColorANSI.CYAN + "Client connected" + ColorANSI.RESET);
                 ServerHandler serverHandler = new ServerHandler(clientSocket, this);
                 Thread thread = new Thread(serverHandler);
@@ -28,27 +28,29 @@ public class Server {
         }
     }
 
-    public void broadcast(String message, ServerHandler sender){
-        for(ServerHandler receiver : clients.values()){
-            if(message.contains("[SERVER]: ") && !receiver.equals(sender)) receiver.sendServerMessage(message);
-            else if(!receiver.equals(sender)) receiver.sendMessage(message, sender);
+    public void broadcast(String message, ServerHandler sender) {
+        for (ServerHandler receiver : clients.values()) {
+            if (message.contains("[SERVER]: ") && !receiver.equals(sender)) receiver.sendServerMessage(message);
+            else if (!receiver.equals(sender)) receiver.sendMessage(message, sender);
         }
     }
-    public void disconnect(String message, ServerHandler serverHandler){
+
+    public void disconnect(String message, ServerHandler serverHandler) {
         clients.remove(serverHandler.username);
-        for(ServerHandler receiver : clients.values()){
-            if(!receiver.equals(serverHandler)) receiver.sendServerMessage(message);
+        for (ServerHandler receiver : clients.values()) {
+            if (!receiver.equals(serverHandler)) receiver.sendServerMessage(message);
         }
     }
-    public void privateMessage(String message, ServerHandler sender, ServerHandler receiver){
+
+    public void privateMessage(String message, ServerHandler sender, ServerHandler receiver) {
         boolean isConnected = false;
-        for(ServerHandler client : clients.values()){
-            if(client.equals(receiver)){
-                receiver.sendPrivateMessage(message,sender);
+        for (ServerHandler client : clients.values()) {
+            if (client.equals(receiver)) {
+                receiver.sendPrivateMessage(message, sender);
                 isConnected = true;
                 break;
             }
         }
-        if(!isConnected) sender.error();
+        if (!isConnected) sender.error();
     }
 }
